@@ -1,6 +1,6 @@
 from __future__ import print_function
 import sys
-sys.path.insert(0,'Keras-2.0.8')
+import keras
 from keras import backend as K
 import os
 import numpy as np
@@ -119,4 +119,3 @@ def predict(args):
 
 if __name__ == '__main__':
     predict(args)
-

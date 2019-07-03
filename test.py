@@ -114,6 +114,6 @@ def predict(args):
         save(liver_res, args.save_path + 'test-segmentation-' + str(id) + '.nii', img_test_header)
 
         del  Segmask, liver_labels, mask, region,label_num,liver_res
-        
+
 if __name__ == '__main__':
     predict(args)

@@ -20,8 +20,8 @@ K.set_image_dim_ordering('tf')  # Tensorflow dimension ordering in this code
 parser = argparse.ArgumentParser(description='Keras DenseUnet Test')
 #  data folder
 parser.add_argument('-data', type=str, default='data/myTestData/test-volume-', help='test images')
-parser.add_argument('-liver_path', type=str, default='/livermask/')
-parser.add_argument('-save_path', type=str, default='results')
+parser.add_argument('-liver_path', type=str, default='/content/H-DenseUNet/livermask/') // Colab
+parser.add_argument('-save_path', type=str, default='/content/H-DenseUnet/results') // Colab
 #  other paras
 parser.add_argument('-b', type=int, default=1)
 parser.add_argument('-input_size', type=int, default=512)
@@ -41,7 +41,7 @@ def predict(args):
     if not Path(args.save_path).exists():
         os.mkdir(args.save_path)
 
-    for id in xrange(70):
+    for id in xrange(1):
         print('-' * 30)
         print('Loading model and preprocessing test data...' + str(id))
         print('-' * 30)
@@ -115,7 +115,6 @@ def predict(args):
         save(liver_res, args.save_path + 'test-segmentation-' + str(id) + '.nii', img_test_header)
 
         del  Segmask, liver_labels, mask, region,label_num,liver_res
-
 
 if __name__ == '__main__':
     predict(args)

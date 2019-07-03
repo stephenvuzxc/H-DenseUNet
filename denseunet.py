@@ -1,8 +1,9 @@
 """Test ImageNet pretrained DenseNet"""
 from __future__ import print_function
 import sys
-sys.path.insert(0,'/home/xmli/livertumor_xmli/Keras-2.0.8')
-sys.path.insert(0,'/home/xmli/livertumor_xmli/mylib')
+#sys.path.insert(0,'/home/xmli/livertumor_xmli/Keras-2.0.8')
+import keras
+sys.path.insert(0,'/content/H-DenseUNet/lib')
 # sys.path.insert(0,'/research/pheng/xmli/livertumor/Keras-2.0.8')
 # sys.path.insert(0,'/research/pheng/xmli/livertumor/mylib')
 from multiprocessing.dummy import Pool as ThreadPool
@@ -26,7 +27,7 @@ from custom_layers import Scale
 os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 K.set_image_dim_ordering('tf')
 
-path = './result_train_denseU167_fast_new/'
+path = '/content/H-DenseUNet/result_train_denseU167_fast_new/'
 batch_size = 10
 img_deps = 512
 img_rows = 512
@@ -37,7 +38,7 @@ txtfile = 'myTrainingDataTxt'
 mean = 48
 
 liverlist = [32,34,38,41,47,87,89,91,105,106,114,115,119]
-DataList = ["/home/xmli/gpu7_xmli/"]
+DataList = ["/content/drive/My Drive/LITS Final Project/"]
 def load_seq_crop_data_masktumor_try(Parameter_List):
     img = Parameter_List[0]
     tumor = Parameter_List[1]
@@ -229,7 +230,7 @@ def DenseUNet(nb_dense_block=4, growth_rate=48, nb_filter=96, reduction=0.0, dro
 def conv_block(x, stage, branch, nb_filter, dropout_rate=None, weight_decay=1e-4):
     '''Apply BatchNorm, Relu, bottleneck 1x1 Conv2D, 3x3 Conv2D, and option dropout
         # Arguments
-            x: input tensor 
+            x: input tensor
             stage: index for dense block
             branch: layer index within each dense block
             nb_filter: number of filters
@@ -264,7 +265,7 @@ def conv_block(x, stage, branch, nb_filter, dropout_rate=None, weight_decay=1e-4
 
 
 def transition_block(x, stage, nb_filter, compression=1.0, dropout_rate=None, weight_decay=1E-4):
-    ''' Apply BatchNorm, 1x1 Convolution, averagePooling, optional compression, dropout 
+    ''' Apply BatchNorm, 1x1 Convolution, averagePooling, optional compression, dropout
         # Arguments
             x: input tensor
             stage: index for dense block
@@ -326,7 +327,7 @@ def train_and_predict():
     print('Creating and compiling model...')
     print('-'*30)
 
-    model = DenseUNet(reduction=0.5, weights_path='./result_train_dense167_fast/model/weights365.04-0.02.hdf5')
+    model = DenseUNet(reduction=0.5, weights_path='/content/H-DenseUNet/result_train_dense167_fast/model/weights365.04-0.02.hdf5')
     sgd = SGD(lr=1e-3, momentum=0.9, nesterov=True)
     model.compile(optimizer=sgd, loss=[weighted_crossentropy])
 

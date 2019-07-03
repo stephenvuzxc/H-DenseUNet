@@ -1,7 +1,7 @@
 """Test ImageNet pretrained DenseNet"""
 from __future__ import print_function
 import sys
-sys.path.insert(0,'Keras-2.0.8')
+import keras
 from multiprocessing.dummy import Pool as ThreadPool
 import random
 from medpy.io import load
@@ -12,7 +12,7 @@ from keras.callbacks import ModelCheckpoint
 import keras.backend as K
 from loss import weighted_crossentropy_2ddense
 import os
-from keras.utils2.multi_gpu import make_parallel
+#from keras.utils2.multi_gpu import make_parallel
 from denseunet import DenseUNet
 from skimage.transform import resize
 K.set_image_dim_ordering('tf')
@@ -20,12 +20,12 @@ K.set_image_dim_ordering('tf')
 #  global parameters
 parser = argparse.ArgumentParser(description='Keras 2d denseunet Training')
 #  data folder
-parser.add_argument('-data', type=str, default='data/', help='test images')
-parser.add_argument('-save_path', type=str, default='Experiments/')
+parser.add_argument('-data', type=str, default='/content/H-DenseUNet/data/', help='test images')
+parser.add_argument('-save_path', type=str, default='/content/H-DenseUNet/Experiments/')
 #  other paras
 parser.add_argument('-b', type=int, default=40)
 parser.add_argument('-input_size', type=int, default=224)
-parser.add_argument('-model_weight', type=str, default='./model/densenet161_weights_tf.h5')
+parser.add_argument('-model_weight', type=str, default='/content/drive/My Drive/LITS Final Project/DenseNet161 Weights/densenet161_weights_tf.h5')
 parser.add_argument('-input_cols', type=int, default=3)
 
 #  data augment
@@ -174,10 +174,10 @@ def train_and_predict():
     print('-'*30)
     print('Creating and compiling model...')
     print('-'*30)
-
+    print(args)
     model = DenseUNet(reduction=0.5, args=args)
     model.load_weights(args.model_weight, by_name=True)
-    model = make_parallel(model, args.b / 10, mini_batch=10)
+    #model = make_parallel(model, args.b / 10, mini_batch=10)
     sgd = SGD(lr=1e-3, momentum=0.9, nesterov=True)
     model.compile(optimizer=sgd, loss=[weighted_crossentropy_2ddense])
 

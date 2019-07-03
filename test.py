@@ -19,7 +19,7 @@ K.set_image_dim_ordering('tf')  # Tensorflow dimension ordering in this code
 #  global parameters
 parser = argparse.ArgumentParser(description='Keras DenseUnet Test')
 #  data folder
-parser.add_argument('-data', type=str, default='data/myTestData/test-volume-', help='test images')
+parser.add_argument('-data', type=str, default='/content/drive/My Drive/LITS Final Project/myTestData/test-volume-', help='test images')
 parser.add_argument('-liver_path', type=str, default='/content/H-DenseUNet/livermask/') // Colab
 parser.add_argument('-save_path', type=str, default='/content/H-DenseUnet/results') // Colab
 #  other paras

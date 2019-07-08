@@ -66,29 +66,30 @@ def DenseUNet(nb_dense_block=4, growth_rate=48, nb_filter=96, reduction=0.0, dro
     x = Scale(axis=concat_axis, name='conv'+str(final_stage)+'_blk_scale')(x)
     x = Activation('relu', name='relu'+str(final_stage)+'_blk')(x)
     box.append(x)
-
+    #print(x)
     up0 = UpSampling2D(size=(2,2))(x)
-    conv_up0 = Conv2D(768, (3, 3), padding="same", kernel_initializer="normal", name = "conv_up0")(up0)
+    print('Up0 Shape:   ', up0.shape)
+    conv_up0 = Conv2D(96, (3, 3), padding="same", kernel_initializer="normal", name = "conv_up0")(up0)
     bn_up0 = BatchNormalization(name = "bn_up0")(conv_up0)
     ac_up0 = Activation('relu', name='ac_up0')(bn_up0)
 
     up1 = UpSampling2D(size=(2,2))(ac_up0)
-    conv_up1 = Conv2D(384, (3, 3), padding="same", kernel_initializer="normal", name = "conv_up1")(up1)
+    conv_up1 = Conv2D(64, (3, 3), padding="same", kernel_initializer="normal", name = "conv_up1")(up1)
     bn_up1 = BatchNormalization(name = "bn_up1")(conv_up1)
     ac_up1 = Activation('relu', name='ac_up1')(bn_up1)
 
     up2 = UpSampling2D(size=(2,2))(ac_up1)
-    conv_up2 = Conv2D(96, (3, 3), padding="same", kernel_initializer="normal", name = "conv_up2")(up2)
+    conv_up2 = Conv2D(64, (3, 3), padding="same", kernel_initializer="normal", name = "conv_up2")(up2)
     bn_up2 = BatchNormalization(name = "bn_up2")(conv_up2)
     ac_up2 = Activation('relu', name='ac_up2')(bn_up2)
 
     up3 = UpSampling2D(size=(2,2))(ac_up2)
-    conv_up3 = Conv2D(96, (3, 3), padding="same", kernel_initializer="normal", name = "conv_up3")(up3)
+    conv_up3 = Conv2D(32, (3, 3), padding="same", kernel_initializer="normal", name = "conv_up3")(up3)
     bn_up3 = BatchNormalization(name = "bn_up3")(conv_up3)
     ac_up3 = Activation('relu', name='ac_up3')(bn_up3)
 
     up4 = UpSampling2D(size=(2, 2))(ac_up3)
-    conv_up4 = Conv2D(64, (3, 3), padding="same", kernel_initializer="normal", name="conv_up4")(up4)
+    conv_up4 = Conv2D(16, (3, 3), padding="same", kernel_initializer="normal", name="conv_up4")(up4)
     conv_up4 = Dropout(rate=0.3)(conv_up4)
     bn_up4 = BatchNormalization(name="bn_up4")(conv_up4)
     ac_up4 = Activation('relu', name='ac_up4')(bn_up4)
@@ -96,7 +97,7 @@ def DenseUNet(nb_dense_block=4, growth_rate=48, nb_filter=96, reduction=0.0, dro
     x = Conv2D(3, (1,1), padding="same", kernel_initializer="normal", name="dense167classifer")(ac_up4)
 
     model = Model(img_input, x, name='denseu161')
-
+    model.summary()
 
     return model
 

@@ -143,6 +143,7 @@ def load_fast_files(args):
     for idx in xrange(131):
         print("IDX   ------",idx)
         img, img_header = load(args.data+ '/myTrainingData/volume-' + str(idx) + '.nii')
+        #print(img,img_header)
         tumor, tumor_header = load(args.data + '/myTrainingData/segmentation-' + str(idx) + '.nii')
         img_list.append(img)
         tumor_list.append(tumor)
@@ -188,7 +189,7 @@ def train_and_predict():
     model.load_weights(args.model_weight, by_name=True)
     #model = make_parallel(model, args.b / 10, mini_batch=10)
     sgd = SGD(lr=1e-3, momentum=0.9, nesterov=True)
-    model.compile(optimizer=sgd, loss=[weighted_crossentropy_2ddense])
+    model.compile(optimizer=sgd, loss=[weighted_crossentropy_2ddense],metrics=['accuracy'])
     model.summary()
     
     trainidx, img_list, tumor_list, tumorlines, liverlines, tumoridx, liveridx, minindex_list, maxindex_list = load_fast_files(args)

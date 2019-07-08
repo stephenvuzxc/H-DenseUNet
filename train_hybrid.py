@@ -1,7 +1,7 @@
 """Test ImageNet pretrained DenseNet"""
 from __future__ import print_function
 import sys
-sys.path.insert(0,'Keras-2.0.8')
+import keras
 from multiprocessing.dummy import Pool as ThreadPool
 from medpy.io import load
 import numpy as np

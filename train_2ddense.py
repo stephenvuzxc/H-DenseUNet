@@ -1,7 +1,7 @@
 """Test ImageNet pretrained DenseNet"""
 from __future__ import print_function
 import sys
-# sys.path.insert(0,'Keras-2.0.8')
+import keras
 from multiprocessing.dummy import Pool as ThreadPool
 import random
 from medpy.io import load
@@ -12,26 +12,23 @@ from keras.callbacks import ModelCheckpoint
 import keras.backend as K
 from loss import weighted_crossentropy_2ddense
 import os
-# from keras.utils2.multi_gpu import make_parallel
-
-from keras.utils import multi_gpu_model
-
-from denseunet import DenseUNet
+#from keras.utils2.multi_gpu import make_parallel
+from densenet import DenseUNet
+from resnetunet import residual_network
+from keras import layers
+from keras import models
 from skimage.transform import resize
 K.set_image_dim_ordering('tf')
-
-from tensorflow.python.client import device_lib
-
 
 #  global parameters
 parser = argparse.ArgumentParser(description='Keras 2d denseunet Training')
 #  data folder
 parser.add_argument('-data', type=str, default='data/', help='test images')
-parser.add_argument('-save_path', type=str, default='/content/H-DenseUNet/Experiments/')
+parser.add_argument('-save_path', type=str, default='Experiments/')
 #  other paras
 parser.add_argument('-b', type=int, default=40)
 parser.add_argument('-input_size', type=int, default=224)
-parser.add_argument('-model_weight', type=str, default='./model/densenet161_weights_tf.h5')
+parser.add_argument('-model_weight', type=str, default='/content/drive/My Drive/LITS Final Project/ResNet50 Weights/resnet50_weights_tf_dim_ordering_tf_kernels.h5')
 parser.add_argument('-input_cols', type=int, default=3)
 
 #  data augment
@@ -41,10 +38,6 @@ args = parser.parse_args()
 
 MEAN = args.mean
 thread_num = args.thread_num
-
-def get_available_gpus():
-    local_device_protos = device_lib.list_local_devices()
-    return [x.name for x in local_device_protos if x.device_type == 'GPU']
 
 liverlist = [32,34,38,41,47,87,89,91,105,106,114,115,119]
 def load_seq_crop_data_masktumor_try(Parameter_List):
@@ -148,6 +141,7 @@ def load_fast_files(args):
     liveridx = []
     liverlines = []
     for idx in xrange(131):
+        print("IDX   ------",idx)
         img, img_header = load(args.data+ '/myTrainingData/volume-' + str(idx) + '.nii')
         tumor, tumor_header = load(args.data + '/myTrainingData/segmentation-' + str(idx) + '.nii')
         img_list.append(img)
@@ -181,19 +175,22 @@ def load_fast_files(args):
 
 def train_and_predict():
 
-    print("get_available_gpus ", get_available_gpus())
-
     print('-'*30)
     print('Creating and compiling model...')
     print('-'*30)
 
-    model = DenseUNet(reduction=0.5, args=args)
+    #model = DenseUNet(reduction=0.5, args=args)
+    # Resnet Architecture
+    image_tensor = layers.Input(shape=(224, 224, 3))
+    network_output = residual_network(image_tensor)
+    model = models.Model(inputs=[image_tensor], outputs=[network_output])
+    #
     model.load_weights(args.model_weight, by_name=True)
-    # model = make_parallel(model, args.b / 10, mini_batch=10)
-    # model = multi_gpu_model(model, gpus=None)
+    #model = make_parallel(model, args.b / 10, mini_batch=10)
     sgd = SGD(lr=1e-3, momentum=0.9, nesterov=True)
-    model.compile(optimizer=sgd, loss=[weighted_crossentropy_2ddense], metrics=['accuracy'])
+    model.compile(optimizer=sgd, loss=[weighted_crossentropy_2ddense])
     model.summary()
+    
     trainidx, img_list, tumor_list, tumorlines, liverlines, tumoridx, liveridx, minindex_list, maxindex_list = load_fast_files(args)
 
     print('-'*30)
@@ -217,6 +214,7 @@ def train_and_predict():
 
 
     steps = 27386 / args.b
+
     model.fit_generator(generate_arrays_from_file(args.b, trainidx, img_list, tumor_list, tumorlines, liverlines, tumoridx,
                                                   liveridx, minindex_list, maxindex_list),steps_per_epoch=steps,
                                                     epochs= 6000, verbose = 1, callbacks = [model_checkpoint], max_queue_size=10,
